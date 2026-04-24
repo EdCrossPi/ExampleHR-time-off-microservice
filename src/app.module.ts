@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { AppController } from './app.controller';
 import { BalanceModule } from './balance/balance.module';
 import { TimeOffModule } from './time-off/time-off.module';
 import { HcmClientModule } from './hcm-client/hcm-client.module';
@@ -20,5 +21,6 @@ import { AuditModule } from './audit/audit.module';
     SyncModule,
     AuditModule,
   ],
+  controllers: [AppController],
 })
 export class AppModule {}
