@@ -4,23 +4,23 @@ import { Entity, PrimaryGeneratedColumn, Column, Index } from 'typeorm';
 @Index(['employeeId', 'locationId', 'leaveType'], { unique: true })
 export class LeaveBalance {
   @PrimaryGeneratedColumn()
-  id: number;
+  id!: number;
 
   @Column({ name: 'employee_id', type: 'text' })
-  employeeId: string;
+  employeeId!: string;
 
   @Column({ name: 'location_id', type: 'text' })
-  locationId: string;
+  locationId!: string;
 
   @Column({ name: 'leave_type', type: 'text' })
-  leaveType: string;
+  leaveType!: string;
 
   @Column({ name: 'available_days', type: 'real' })
-  availableDays: number;
+  availableDays!: number;
 
   @Column({ name: 'version', type: 'integer', default: 1 })
-  version: number;
+  version!: number;
 
   @Column({ name: 'last_synced_at', type: 'datetime', nullable: true })
-  lastSyncedAt: Date | null;
+  lastSyncedAt!: Date | null;
 }

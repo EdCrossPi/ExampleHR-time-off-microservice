@@ -15,26 +15,26 @@ export enum AuditResult {
 @Entity('sync_audit_log')
 export class SyncAuditLog {
   @PrimaryGeneratedColumn()
-  id: number;
+  id!: number;
 
   @Column({ name: 'event_type', type: 'text' })
-  eventType: AuditEventType;
+  eventType!: AuditEventType;
 
   @Column({ name: 'employee_id', type: 'text', nullable: true })
-  employeeId: string | null;
+  employeeId!: string | null;
 
   @Column({ name: 'location_id', type: 'text', nullable: true })
-  locationId: string | null;
+  locationId!: string | null;
 
   @Column({ name: 'payload', type: 'text', nullable: true })
-  payload: string | null;
+  payload!: string | null;
 
   @Column({ name: 'result', type: 'text' })
-  result: AuditResult;
+  result!: AuditResult;
 
   @Column({ name: 'error_message', type: 'text', nullable: true })
-  errorMessage: string | null;
+  errorMessage!: string | null;
 
   @CreateDateColumn({ name: 'created_at' })
-  createdAt: Date;
+  createdAt!: Date;
 }

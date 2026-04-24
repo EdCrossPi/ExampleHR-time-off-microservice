@@ -56,14 +56,16 @@ export class SyncService {
     } catch (error) {
       await queryRunner.rollbackTransaction();
 
+      const message = error instanceof Error ? error.message : String(error);
+
       await this.auditService.log({
         eventType: AuditEventType.BATCH_SYNC,
         result: AuditResult.FAILURE,
-        errorMessage: error.message,
+        errorMessage: message,
         payload: { totalRecords: balances.length },
       });
 
-      this.logger.error(`Batch sync failed and was rolled back: ${error.message}`);
+      this.logger.error(`Batch sync failed and was rolled back: ${message}`);
       throw error;
     } finally {
       await queryRunner.release();

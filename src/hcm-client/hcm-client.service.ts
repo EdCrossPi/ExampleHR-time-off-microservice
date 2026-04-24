@@ -22,6 +22,10 @@ export class HcmClientService {
 
   constructor(private readonly httpService: HttpService) {}
 
+  private extractMessage(error: unknown): string {
+    return error instanceof Error ? error.message : String(error);
+  }
+
   async getBalance(employeeId: string, locationId: string, leaveType: string): Promise<HcmBalance | null> {
     try {
       const response = await firstValueFrom(
@@ -29,31 +33,27 @@ export class HcmClientService {
       );
       return response.data;
     } catch (error) {
-      this.logger.error(`Failed to fetch balance from HCM: ${error.message}`);
+      this.logger.error(`Failed to fetch balance from HCM: ${this.extractMessage(error)}`);
       return null;
     }
   }
 
   async debitBalance(payload: HcmDebitPayload): Promise<boolean> {
     try {
-      await firstValueFrom(
-        this.httpService.post('/balances/debit', payload),
-      );
+      await firstValueFrom(this.httpService.post('/balances/debit', payload));
       return true;
     } catch (error) {
-      this.logger.error(`Failed to debit balance in HCM: ${error.message}`);
+      this.logger.error(`Failed to debit balance in HCM: ${this.extractMessage(error)}`);
       return false;
     }
   }
 
   async creditBalance(payload: HcmDebitPayload): Promise<boolean> {
     try {
-      await firstValueFrom(
-        this.httpService.post('/balances/credit', payload),
-      );
+      await firstValueFrom(this.httpService.post('/balances/credit', payload));
       return true;
     } catch (error) {
-      this.logger.error(`Failed to credit balance in HCM: ${error.message}`);
+      this.logger.error(`Failed to credit balance in HCM: ${this.extractMessage(error)}`);
       return false;
     }
   }
@@ -65,7 +65,7 @@ export class HcmClientService {
       );
       return response.data;
     } catch (error) {
-      this.logger.error(`Failed to fetch batch balances from HCM: ${error.message}`);
+      this.logger.error(`Failed to fetch batch balances from HCM: ${this.extractMessage(error)}`);
       return [];
     }
   }
