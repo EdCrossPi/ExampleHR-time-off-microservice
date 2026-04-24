@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { ScheduleModule } from '@nestjs/schedule';
 import { AppController } from './app.controller';
 import { BalanceModule } from './balance/balance.module';
 import { TimeOffModule } from './time-off/time-off.module';
@@ -15,6 +16,7 @@ import { AuditModule } from './audit/audit.module';
       entities: [__dirname + '/**/*.entity{.ts,.js}'],
       synchronize: true,
     }),
+    ScheduleModule.forRoot(),
     BalanceModule,
     TimeOffModule,
     HcmClientModule,
