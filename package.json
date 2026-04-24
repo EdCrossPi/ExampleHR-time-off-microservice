@@ -60,6 +60,11 @@
     "typescript-eslint": "^8.20.0"
   },
   "jest": {
+  "globals": {
+  "ts-jest": {
+    "tsconfig": "tsconfig.json"
+  }
+},
   "moduleFileExtensions": ["js", "json", "ts"],
   "rootDir": ".",
   "testMatch": [

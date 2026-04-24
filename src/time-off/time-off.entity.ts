@@ -20,10 +20,10 @@ export class TimeOffRequest {
   @Column({ name: 'days_requested', type: 'real' })
   daysRequested: number;
 
-  @Column({ name: 'status', default: RequestStatus.PENDING })
+  @Column({ name: 'status', type: 'text', default: RequestStatus.PENDING })
   status: RequestStatus;
 
-  @Column({ name: 'hcm_sync_status', default: HcmSyncStatus.PENDING })
+  @Column({ name: 'hcm_sync_status', type: 'text', default: HcmSyncStatus.PENDING })
   hcmSyncStatus: HcmSyncStatus;
 
   @Column({ name: 'idempotency_key', unique: true })
