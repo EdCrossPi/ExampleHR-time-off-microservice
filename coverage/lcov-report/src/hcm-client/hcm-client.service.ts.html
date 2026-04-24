@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">75% </span>
+                <span class="strong">75.86% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>21/28</span>
+                <span class='fraction'>22/29</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">75% </span>
+                <span class="strong">66.66% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>3/4</span>
+                <span class='fraction'>4/6</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">80% </span>
+                <span class="strong">83.33% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>4/5</span>
+                <span class='fraction'>5/6</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">73.07% </span>
+                <span class="strong">74.07% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>19/26</span>
+                <span class='fraction'>20/27</span>
             </div>
         
             
@@ -159,6 +159,10 @@
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">26x</span>
 <span class="cline-any cline-yes">26x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -173,8 +177,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">5x</span>
 <span class="cline-any cline-yes">5x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
@@ -185,8 +187,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -229,6 +229,10 @@ export class HcmClientService {
 &nbsp;
   constructor(private readonly httpService: HttpService<span class="branch-1 cbranch-no" title="branch not covered" >) {}</span>
 &nbsp;
+  private extractMessage(error: unknown): string {
+    return error instanceof Error ? error.message : <span class="branch-1 cbranch-no" title="branch not covered" >String(error);</span>
+  }
+&nbsp;
   async getBalance(employeeId: string, locationId: string, leaveType: string): Promise&lt;HcmBalance | null&gt; {
     try {
       const response = await firstValueFrom(
@@ -236,31 +240,27 @@ export class HcmClientService {
       );
       return response.data;
     } catch (error) {
-      this.logger.error(`Failed to fetch balance from HCM: ${error.message}`);
+      this.logger.error(`Failed to fetch balance from HCM: ${this.extractMessage(error)}`);
       return null;
     }
   }
 &nbsp;
   async debitBalance(payload: HcmDebitPayload): Promise&lt;boolean&gt; {
     try {
-      await firstValueFrom(
-        this.httpService.post('/balances/debit', payload),
-      );
+      await firstValueFrom(this.httpService.post('/balances/debit', payload));
       return true;
     } catch (error) {
-      this.logger.error(`Failed to debit balance in HCM: ${error.message}`);
+      this.logger.error(`Failed to debit balance in HCM: ${this.extractMessage(error)}`);
       return false;
     }
   }
 &nbsp;
   async creditBalance(payload: HcmDebitPayload): Promise&lt;boolean&gt; {
     try {
-      await firstValueFrom(
-        this.httpService.post('/balances/credit', payload),
-      );
+      await firstValueFrom(this.httpService.post('/balances/credit', payload));
       return true;
     } catch (error) {
-<span class="cstat-no" title="statement not covered" >      this.logger.error(`Failed to credit balance in HCM: ${error.message}`);</span>
+<span class="cstat-no" title="statement not covered" >      this.logger.error(`Failed to credit balance in HCM: ${this.extractMessage(error)}`);</span>
 <span class="cstat-no" title="statement not covered" >      return false;</span>
     }
   }
@@ -272,7 +272,7 @@ export class HcmClientService {
       );
 <span class="cstat-no" title="statement not covered" >      return response.data;</span>
     } catch (error) {
-<span class="cstat-no" title="statement not covered" >      this.logger.error(`Failed to fetch batch balances from HCM: ${error.message}`);</span>
+<span class="cstat-no" title="statement not covered" >      this.logger.error(`Failed to fetch batch balances from HCM: ${this.extractMessage(error)}`);</span>
 <span class="cstat-no" title="statement not covered" >      return [];</span>
     }
   }
@@ -283,7 +283,7 @@ export class HcmClientService {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-04-24T01:03:41.841Z
+                at 2026-04-24T02:06:03.594Z
             </div>
         <script src="../../prettify.js"></script>
         <script>
