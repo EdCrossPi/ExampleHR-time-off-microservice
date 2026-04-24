@@ -2,7 +2,6 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import request from 'supertest';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { HttpModule } from '@nestjs/axios';
 import { BalanceModule } from '../../src/balance/balance.module';
 import { TimeOffModule } from '../../src/time-off/time-off.module';
 import { SyncModule } from '../../src/sync/sync.module';
@@ -30,7 +29,6 @@ async function seedBalance(balance: object) {
 describe('Time-Off Integration Tests', () => {
   let app: INestApplication;
   jest.setTimeout(30000);
-
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -86,6 +84,77 @@ describe('Time-Off Integration Tests', () => {
         .expect(200);
 
       expect(res.body.availableDays).toBe(5);
+    });
+  });
+
+  describe('Request listing and rejection', () => {
+    it('lists requests for an employee filtered by status', async () => {
+      await seedBalance({ employeeId: 'emp-list-1', locationId: 'loc-1', leaveType: 'VACATION', availableDays: 10 });
+
+      await request(app.getHttpServer())
+        .post('/api/v1/requests')
+        .set('idempotency-key', 'key-list-1')
+        .send({ employeeId: 'emp-list-1', locationId: 'loc-1', leaveType: 'VACATION', daysRequested: 2 })
+        .expect(201);
+
+      await request(app.getHttpServer())
+        .post('/api/v1/requests')
+        .set('idempotency-key', 'key-list-2')
+        .send({ employeeId: 'emp-list-1', locationId: 'loc-1', leaveType: 'VACATION', daysRequested: 1 })
+        .expect(201);
+
+      const res = await request(app.getHttpServer())
+        .get('/api/v1/requests?employeeId=emp-list-1&status=PENDING')
+        .expect(200);
+
+      expect(res.body.length).toBe(2);
+      expect(res.body.every((r: any) => r.status === 'PENDING')).toBe(true);
+    });
+
+    it('rejects a PENDING request without changing balance', async () => {
+      await seedBalance({ employeeId: 'emp-reject-1', locationId: 'loc-1', leaveType: 'VACATION', availableDays: 10 });
+
+      const created = await request(app.getHttpServer())
+        .post('/api/v1/requests')
+        .set('idempotency-key', 'key-reject-1')
+        .send({ employeeId: 'emp-reject-1', locationId: 'loc-1', leaveType: 'VACATION', daysRequested: 3 })
+        .expect(201);
+
+      const rejected = await request(app.getHttpServer())
+        .patch(`/api/v1/requests/${created.body.id}/reject`)
+        .expect(200);
+
+      expect(rejected.body.status).toBe('REJECTED');
+
+      const balance = await request(app.getHttpServer())
+        .get('/api/v1/balances/emp-reject-1/loc-1/VACATION')
+        .expect(200);
+
+      expect(balance.body.availableDays).toBe(10);
+    });
+
+    it('returns 409 when rejecting a non-PENDING request', async () => {
+      await seedBalance({ employeeId: 'emp-reject-2', locationId: 'loc-1', leaveType: 'VACATION', availableDays: 10 });
+
+      const created = await request(app.getHttpServer())
+        .post('/api/v1/requests')
+        .set('idempotency-key', 'key-reject-2')
+        .send({ employeeId: 'emp-reject-2', locationId: 'loc-1', leaveType: 'VACATION', daysRequested: 2 })
+        .expect(201);
+
+      await request(app.getHttpServer())
+        .patch(`/api/v1/requests/${created.body.id}/reject`)
+        .expect(200);
+
+      await request(app.getHttpServer())
+        .patch(`/api/v1/requests/${created.body.id}/reject`)
+        .expect(409);
+    });
+
+    it('returns 404 when fetching a non-existent request', async () => {
+      await request(app.getHttpServer())
+        .get('/api/v1/requests/non-existent-id')
+        .expect(404);
     });
   });
 
@@ -338,6 +407,38 @@ describe('Time-Off Integration Tests', () => {
       const debitLog = audit.body.find((log: any) => log.eventType === 'APPROVAL_DEBIT');
       expect(debitLog).toBeDefined();
       expect(debitLog.result).toBe('SUCCESS');
+    });
+
+    it('filters audit log by employeeId', async () => {
+      await seedBalance({ employeeId: 'emp-audit-2', locationId: 'loc-1', leaveType: 'VACATION', availableDays: 10 });
+
+      const created = await request(app.getHttpServer())
+        .post('/api/v1/requests')
+        .set('idempotency-key', 'key-audit-2')
+        .send({ employeeId: 'emp-audit-2', locationId: 'loc-1', leaveType: 'VACATION', daysRequested: 1 })
+        .expect(201);
+
+      await request(app.getHttpServer())
+        .patch(`/api/v1/requests/${created.body.id}/approve`)
+        .expect(200);
+
+      const audit = await request(app.getHttpServer())
+        .get('/api/v1/audit?employeeId=emp-audit-2')
+        .expect(200);
+
+      expect(audit.body.length).toBeGreaterThan(0);
+      expect(audit.body.every((log: any) => log.employeeId === 'emp-audit-2')).toBe(true);
+    });
+
+    it('filters audit log by date range', async () => {
+      const from = new Date(Date.now() - 60000).toISOString();
+      const to = new Date(Date.now() + 60000).toISOString();
+
+      const audit = await request(app.getHttpServer())
+        .get(`/api/v1/audit?from=${from}&to=${to}`)
+        .expect(200);
+
+      expect(Array.isArray(audit.body)).toBe(true);
     });
   });
 });
