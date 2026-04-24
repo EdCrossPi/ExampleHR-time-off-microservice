@@ -141,8 +141,10 @@ export class BalanceService {
 
   private async syncFromHcmByEmployee(employeeId: string): Promise<void> {
     const localBalances = await this.balanceRepository.find({ where: { employeeId } });
-    for (const balance of localBalances) {
-      await this.syncFromHcm(employeeId, balance.locationId, balance.leaveType);
-    }
+    await Promise.all(
+      localBalances.map(balance =>
+        this.syncFromHcm(employeeId, balance.locationId, balance.leaveType),
+      ),
+    );
   }
 }
