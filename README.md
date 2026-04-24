@@ -69,19 +69,19 @@ npx jest --coverage --runInBand
 
 All endpoints are prefixed with `/api/v1`.
 
-| Method | Endpoint                                     | Description                              |
-|--------|----------------------------------------------|------------------------------------------|
-| GET    | /health                                      | Health check                             |
-| GET    | /balances/:employeeId                        | Get all balances for an employee         |
-| GET    | /balances/:employeeId/:locationId/:leaveType | Get a specific balance                   |
-| POST   | /sync/batch                                  | Ingest full balance corpus from HCM      |
-| POST   | /requests                                    | Create a time-off request                |
-| GET    | /requests/:id                                | Get a request by ID                      |
-| GET    | /requests?employeeId=&status=                | List requests for an employee            |
-| PATCH  | /requests/:id/approve                        | Approve a request                        |
-| PATCH  | /requests/:id/reject                         | Reject a request                         |
-| PATCH  | /requests/:id/cancel                         | Cancel a request                         |
-| GET    | /audit?employeeId=&from=&to=                 | Query the audit log                      |
+| Method | Endpoint                                     | Description                         |
+| ------ | -------------------------------------------- | ----------------------------------- |
+| GET    | /health                                      | Health check                        |
+| GET    | /balances/:employeeId                        | Get all balances for an employee    |
+| GET    | /balances/:employeeId/:locationId/:leaveType | Get a specific balance              |
+| POST   | /sync/batch                                  | Ingest full balance corpus from HCM |
+| POST   | /requests                                    | Create a time-off request           |
+| GET    | /requests/:id                                | Get a request by ID                 |
+| GET    | /requests?employeeId=&status=                | List requests for an employee       |
+| PATCH  | /requests/:id/approve                        | Approve a request                   |
+| PATCH  | /requests/:id/reject                         | Reject a request                    |
+| PATCH  | /requests/:id/cancel                         | Cancel a request                    |
+| GET    | /audit?employeeId=&from=&to=                 | Query the audit log                 |
 
 ### Creating a request
 
@@ -115,13 +115,13 @@ curl "http://localhost:3000/api/v1/audit?employeeId=emp-1&from=2026-01-01&to=202
 
 The service is built with NestJS and TypeScript, using SQLite as the local database via TypeORM. It follows a layered architecture with five modules:
 
-| Module           | Responsibility                                                                 |
-|------------------|--------------------------------------------------------------------------------|
-| BalanceModule    | Manages local leave balance cache and HCM synchronization                      |
-| TimeOffModule    | Handles request lifecycle with a strict state machine                          |
-| HcmClientModule  | Centralizes all outbound communication with the HCM                            |
-| SyncModule       | Processes full batch imports from the HCM transactionally                      |
-| AuditModule      | Maintains an append-only log of all HCM sync events                            |
+| Module          | Responsibility                                            |
+| --------------- | --------------------------------------------------------- |
+| BalanceModule   | Manages local leave balance cache and HCM synchronization |
+| TimeOffModule   | Handles request lifecycle with a strict state machine     |
+| HcmClientModule | Centralizes all outbound communication with the HCM       |
+| SyncModule      | Processes full batch imports from the HCM transactionally |
+| AuditModule     | Maintains an append-only log of all HCM sync events       |
 
 ### Request lifecycle
 
@@ -168,14 +168,26 @@ curl -X POST http://localhost:3001/hcm-mock/configure \
   -d '{ "mode": "error" }'
 ```
 
-| Mode           | Behavior                                                              |
-|----------------|-----------------------------------------------------------------------|
-| normal         | Returns accurate balances and accepts debits without error            |
-| stale          | Returns a balance lower than what is stored locally                   |
-| error          | Returns 4xx on debit requests                                         |
-| silent_failure | Returns 200 on debit but does not actually update                     |
-| timeout        | Delays response by 30s                                                |
-| anniversary    | Increases balance by a configured amount between two requests         |
+| Mode           | Behavior                                                      |
+| -------------- | ------------------------------------------------------------- |
+| normal         | Returns accurate balances and accepts debits without error    |
+| stale          | Returns a balance lower than what is stored locally           |
+| error          | Returns 4xx on debit requests                                 |
+| silent_failure | Returns 200 on debit but does not actually update             |
+| timeout        | Delays response by 30s                                        |
+| anniversary    | Increases balance by a configured amount between two requests |
+
+## Test Coverage
+
+To generate and view the full coverage report:
+
+```bash
+npx jest --coverage --runInBand
+```
+
+After running, open `coverage/lcov-report/index.html` in your browser for a detailed visual report.
+
+Current coverage: 92% statements across all modules.
 
 ### Resetting to initial state
 
