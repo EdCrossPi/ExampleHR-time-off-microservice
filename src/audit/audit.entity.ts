@@ -17,23 +17,23 @@ export class SyncAuditLog {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ name: 'event_type' })
+  @Column({ name: 'event_type', type: 'text' })
   eventType: AuditEventType;
 
-  @Column({ name: 'employee_id', nullable: true })
-  employeeId: string;
+  @Column({ name: 'employee_id', type: 'text', nullable: true })
+  employeeId: string | null;
 
-  @Column({ name: 'location_id', nullable: true })
-  locationId: string;
+  @Column({ name: 'location_id', type: 'text', nullable: true })
+  locationId: string | null;
 
   @Column({ name: 'payload', type: 'text', nullable: true })
-  payload: string;
+  payload: string | null;
 
-  @Column({ name: 'result' })
+  @Column({ name: 'result', type: 'text' })
   result: AuditResult;
 
-  @Column({ name: 'error_message', nullable: true })
-  errorMessage: string;
+  @Column({ name: 'error_message', type: 'text', nullable: true })
+  errorMessage: string | null;
 
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
