@@ -1,18 +1,7 @@
 import { Entity, PrimaryColumn, Column, CreateDateColumn, UpdateDateColumn } from 'typeorm';
 
-export enum RequestStatus {
-  PENDING = 'PENDING',
-  APPROVED = 'APPROVED',
-  REJECTED = 'REJECTED',
-  CANCELLED = 'CANCELLED',
-}
-
-export enum HcmSyncStatus {
-  PENDING = 'PENDING',
-  SYNCED = 'SYNCED',
-  FAILED = 'FAILED',
-  RETRY = 'RETRY',
-}
+import { RequestStatus } from '../common/enums/request-status.enum';
+import { HcmSyncStatus } from '../common/enums/hcm-sync-status.enum';
 
 @Entity('time_off_request')
 export class TimeOffRequest {
