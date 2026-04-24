@@ -1,11 +1,10 @@
-import { Entity, PrimaryColumn, Column, CreateDateColumn, UpdateDateColumn } from 'typeorm';
-import { RequestStatus } from '../common/enums/request-status.enum';
-import { HcmSyncStatus } from '../common/enums/hcm-sync-status.enum';
+import { Entity, PrimaryGeneratedColumn, Column, Index } from 'typeorm';
 
-@Entity('time_off_request')
-export class TimeOffRequest {
-  @PrimaryColumn({ type: 'text' })
-  id: string;
+@Entity('leave_balance')
+@Index(['employeeId', 'locationId', 'leaveType'], { unique: true })
+export class LeaveBalance {
+  @PrimaryGeneratedColumn()
+  id: number;
 
   @Column({ name: 'employee_id', type: 'text' })
   employeeId: string;
@@ -16,21 +15,12 @@ export class TimeOffRequest {
   @Column({ name: 'leave_type', type: 'text' })
   leaveType: string;
 
-  @Column({ name: 'days_requested', type: 'real' })
-  daysRequested: number;
+  @Column({ name: 'available_days', type: 'real' })
+  availableDays: number;
 
-  @Column({ name: 'status', type: 'text', default: RequestStatus.PENDING })
-  status: RequestStatus;
+  @Column({ name: 'version', type: 'integer', default: 1 })
+  version: number;
 
-  @Column({ name: 'hcm_sync_status', type: 'text', default: HcmSyncStatus.PENDING })
-  hcmSyncStatus: HcmSyncStatus;
-
-  @Column({ name: 'idempotency_key', type: 'text', unique: true })
-  idempotencyKey: string;
-
-  @CreateDateColumn({ name: 'created_at' })
-  createdAt: Date;
-
-  @UpdateDateColumn({ name: 'updated_at' })
-  updatedAt: Date;
+  @Column({ name: 'last_synced_at', type: 'datetime', nullable: true })
+  lastSyncedAt: Date | null;
 }
